@@ -19,7 +19,7 @@
 
     <Service priority="0">
       <Type>%s</Type>
-      <test>&lol6;</test>
+      <test></test>
       <URI>%s</URI>
     </Service>
 
