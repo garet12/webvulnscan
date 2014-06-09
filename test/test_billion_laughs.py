@@ -17,11 +17,10 @@ def get_objects(xml_data):
                 yield ('element', None)
         elif c == '&':
             endpos = xml_data.find(';', idx + 1)
-            print xml_data[idx+1:endpos]
             yield ('entity_reference', xml_data[idx + 1:endpos])
         else:
             # Die einzelnen Buchstaben der Referenzen werden immer wieder gezaehlt, wodurch zu viel gezaehlt wird
-            # Hier muss noch eine bessere Überprüfung hin
+            # Hier muss noch eine bessere Ueberpruefung hin
             if '&' in xml_data:
                 continue
             else:
