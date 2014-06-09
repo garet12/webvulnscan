@@ -5,15 +5,13 @@ from collections import Counter
 
 
 def get_objects(xml_data):
-    pos = 0
     for idx, c in enumerate(xml_data):
         if c == '<':
-            # TODO: re.find
             if re.match(r'!ENTITY', xml_data[idx + 1:]):
                 # xml_data[idx + 1:].startswith('!ENTITY'):
                 ename = re.search(
-                    r'(\w+)', xml_data[xml_data.find(' ', idx + 1):]).group()
-                evalue = re.search(r'"(.*)"', xml_data[idx + 1:]).group()
+                    r'\s(\w+)', xml_data[idx + 1:]).group(1)
+                evalue = re.search(r'"(.*)"', xml_data[idx + 1:]).group(1)
                 yield ('entity', (ename, evalue))
             else:
                 yield ('element', None)
@@ -27,13 +25,13 @@ def get_objects(xml_data):
 def get_xml_length(xml_data, entities={}):
     res = 0
     for otype, ovalue in get_objects(xml_data):
-        print res
+        # print res
         if otype == 'element':
             res += 5
         elif otype == 'entity':
             ename, evalue = ovalue
-            print entities
             entities[ename] = get_xml_length(evalue, entities)
+            # print entities
         elif otype == 'entity_reference':
             res += entities[ovalue]
         else:  # text
@@ -99,9 +97,9 @@ if __name__ == '__main__':
     f = open("testdoc", "r")
     xml_data = f.read()
     # XMLParser(f)
-    res=get_xml_length(xml_data)
-    res=res*9.31322575*10**-10
-    print str(res)+" GB"
+    res = get_xml_length(xml_data)
+    res = res * 9.31322575 * 10 ** -10
+    print str(res) + " GB"
     f.close()
     # unittest.main()
     # Fuer mich relevant sind nur die ENTITYs und Kommentare, den Rest kann ich
