@@ -5,26 +5,28 @@ from collections import Counter
 
 
 def get_objects(xml_data):
+    skip = False
     for idx, c in enumerate(xml_data):
-        if c == '<':
-            if re.match(r'!ENTITY', xml_data[idx + 1:]):
-                # xml_data[idx + 1:].startswith('!ENTITY'):
-                ename = re.search(
-                    r'\s(\w+)', xml_data[idx + 1:]).group(1)
-                evalue = re.search(r'"(.*)"', xml_data[idx + 1:]).group(1)
-                yield ('entity', (ename, evalue))
-            else:
-                yield ('element', None)
-        elif c == '&':
-            endpos = xml_data.find(';', idx + 1)
-            yield ('entity_reference', xml_data[idx + 1:endpos])
-        else:
-            # Die einzelnen Buchstaben der Referenzen werden immer wieder gezaehlt, wodurch zu viel gezaehlt wird
-            # Hier muss noch eine bessere Ueberpruefung hin
-            if '&' in xml_data:
-                continue
+        if skip == False:
+            if c == '<':
+                if re.match(r'!ENTITY', xml_data[idx + 1:]):
+                    # xml_data[idx + 1:].startswith('!ENTITY'):
+                    ename = re.search(
+                        r'\s(\w+)', xml_data[idx + 1:]).group(1)
+                    evalue = re.search(r'"(.*)"', xml_data[idx + 1:]).group(1)
+                    yield ('entity', (ename, evalue))
+                else:
+                    yield ('element', None)
+            elif c == '&':
+                endpos = xml_data.find(';', idx + 1)
+                skip = True
+                yield ('entity_reference', xml_data[idx + 1:endpos])
             else:
                 yield ('text', c)
+        else:  # skip = True
+            if c == ';':
+                skip = False
+            continue
 
 
 def get_xml_length(xml_data, entities={}):
