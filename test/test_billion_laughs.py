@@ -7,7 +7,8 @@ from collections import Counter
 def get_objects(xml_data):
     idx = 0
     while idx < len(xml_data):
-        if xml_data[idx] == '<' and re.match(r'!ENTITY', xml_data[idx + 1:]):
+        c = xml_data[idx]
+        if c == '<' and re.match(r'!ENTITY', xml_data[idx + 1:]):
             ename = re.search(
                 r'\s(\w+)', xml_data[idx + 1:]).group(1)
             evalue = re.search(r'"(.*)"', xml_data[idx + 1:]).group(1)
@@ -16,14 +17,14 @@ def get_objects(xml_data):
 
             idx += (endpos - idx)
 
-        elif xml_data[idx] == '&':
+        elif c == '&':
             endpos = xml_data.find(';', idx + 1)
             yield ('entity_reference', xml_data[idx + 1:endpos])
 
             idx += (endpos - idx)
 
         else:
-            yield ('text', xml_data[idx])
+            yield ('text', c)
 
         idx += 1
 
