@@ -1,7 +1,7 @@
 import unittest
 import tutil
 import re
-from collections import Counter
+import time
 
 
 def get_objects(xml_data):
@@ -43,7 +43,107 @@ def get_xml_length(xml_data, entities={}):
 
 
 class BillionLaughsTest(unittest.TestCase):
-    pass
+
+    def test_empty(self):
+        xml_doc = ''''''
+        res = get_xml_length(xml_doc)
+        self.assertEqual(res, 0)
+
+    def test_lol1(self):
+        xml_doc = '''
+<!ENTITY lol "lol">
+<!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+<test>&lol1;</test>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(res >= 30)
+
+    def test_no_reference(self):
+        xml_doc = '''
+<!ENTITY lol "lol">
+<!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+<test></test>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(res < 30)
+
+    def test_lol1_multiple(self):
+        xml_doc = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE lolz [
+  <!ENTITY lol "lol">
+  <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+]>
+<test>&lol1;&lol1;&lol1;</test>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(res >= 90)
+
+    def test_quadratic_blowup(self):
+        xml_doc = '''
+<?xml version="1.0"?>
+<!DOCTYPE payload [
+<!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+]>
+<payload>&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;</payload>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(res >= 2000)
+
+    def test_missing_bracket1(self):
+        xml_doc = '''
+<?xml version="1.0"?>
+<!DOCTYPE payload [
+<!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAA"
+]>
+<payload>&A;</payload>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(False)
+
+    def test_missing_bracket2(self):
+        xml_doc = '''
+<?xml version="1.0"?>
+<!DOCTYPE payload [
+!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAA">
+]>
+<payload>&A;</payload>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(False)
+
+    def test_missing_semicolon(self):
+        xml_doc = '''
+<?xml version="1.0"?>
+<!DOCTYPE payload [
+<!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAA">
+]>
+<payload>&A</payload>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(False)
+
+    def test_missing_slash(self):
+        xml_doc = '''
+<?xml version="1.0"?>
+<!DOCTYPE payload [
+<!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAA">
+]>
+<payload>&A;<payload>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(False)
+
+    def test_missing_quotes(self):
+        xml_doc = '''
+<?xml version="1.0"?>
+<!DOCTYPE payload [
+<!ENTITY A AAAAAAAAAAAAAAAAAAAAAAA>
+]>
+<payload>&A;</payload>
+'''
+        res = get_xml_length(xml_doc)
+        self.assertTrue(False)
 
 if __name__ == '__main__':
     f = open("testdoc", "r")
@@ -53,4 +153,4 @@ if __name__ == '__main__':
     res = res / float(2 ** 30)
     print str(res) + " GB"
     f.close()
-    # unittest.main()
+    unittest.main()
