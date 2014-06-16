@@ -85,6 +85,10 @@ class BillionLaughsTest(unittest.TestCase):
         res = get_xml_length(xml_str)
         self.assertEqual(res, 0)
 
+    def test_invalid_reference(self):
+        xml_str = '&a;'
+        self.assertRaises(BaseException, get_xml_length, xml_str)
+
     def test_lol1(self):
         xml_str = '''
 <!ENTITY lol "lol">
