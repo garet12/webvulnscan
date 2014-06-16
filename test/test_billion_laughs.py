@@ -1,7 +1,6 @@
 import unittest
-import tutil
 import re
-import time
+import sys
 
 
 def get_objects(xml_data, allow_entity_def=True):
@@ -33,8 +32,6 @@ def get_objects(xml_data, allow_entity_def=True):
         idx += 1
 
 
-
-
 def get_xml_length(xml_data):
     object_stream = get_objects(xml_data)
     return _calc_xml_length(object_stream, {})
@@ -47,7 +44,7 @@ def _calc_xml_length(object_stream, entities):
             ename, evalue = ovalue
             entities[ename] = _calc_xml_length(evalue, entities)
         elif otype == 'entity_reference':
-            res += entities[ovalue]
+            res += entities[ovalue]   
         else:  # text
             res += len(ovalue)
     return res
@@ -60,7 +57,6 @@ def _make_list(gen):
         if key == 'entity'
         else (key, val)
         for key, val in gen]
-
 
 
 class BillionLaughsTest(unittest.TestCase):
@@ -83,7 +79,6 @@ class BillionLaughsTest(unittest.TestCase):
                 '''&ya;x''')),
             [('entity_reference', 'ya'), ('text', 'x')]
         )
-
 
     def test_empty(self):
         xml_str = ''''''
@@ -120,6 +115,14 @@ class BillionLaughsTest(unittest.TestCase):
         res = get_xml_length(xml_str)
         self.assertTrue(res >= 90)
 
+    def test_lol1_missing_semicolon(self):
+        xml_str = '''
+<!ENTITY lol "lol">
+<!ENTITY lol1 "&lol&lol&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+<test>&lol1;</test>
+'''
+        self.assertRaises(KeyError, get_xml_length, xml_str)
+
     def test_quadratic_blowup(self):
         xml_str = '''
 <?xml version="1.0"?>
@@ -139,8 +142,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A;</payload>
 '''
-        res = get_xml_length(xml_str)
-        self.assertTrue(False)
+        self.assertRaises(KeyError, get_xml_length, xml_str)
 
     def test_missing_bracket2(self):
         xml_str = '''
@@ -150,8 +152,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A;</payload>
 '''
-        res = get_xml_length(xml_str)
-        self.assertTrue(False)
+        self.assertRaises(KeyError, get_xml_length, xml_str)
 
     def test_missing_semicolon(self):
         xml_str = '''
@@ -161,8 +162,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A</payload>
 '''
-        res = get_xml_length(xml_str)
-        self.assertTrue(False)
+        self.assertRaises(KeyError, get_xml_length, xml_str)
 
     def test_missing_slash(self):
         xml_str = '''
@@ -173,7 +173,7 @@ class BillionLaughsTest(unittest.TestCase):
 <payload>&A;<payload>
 '''
         res = get_xml_length(xml_str)
-        self.assertTrue(False)
+        self.assertTrue(res >= 23)
 
     def test_missing_quotes(self):
         xml_str = '''
@@ -183,8 +183,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A;</payload>
 '''
-        res = get_xml_length(xml_str)
-        self.assertTrue(False)
+        self.assertRaises(KeyError, get_xml_length, xml_str)
 
 if __name__ == '__main__':
     # f = open("testdoc", "r")
