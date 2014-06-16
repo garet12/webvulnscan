@@ -125,7 +125,7 @@ class BillionLaughsTest(unittest.TestCase):
 <!ENTITY lol1 "&lol&lol&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
 <test>&lol1;</test>
 '''
-        self.assertRaises(KeyError, get_xml_length, xml_str)
+        self.assertRaises(BaseException, get_xml_length, xml_str)
 
     def test_quadratic_blowup(self):
         xml_str = '''
@@ -146,7 +146,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A;</payload>
 '''
-        self.assertRaises(KeyError, get_xml_length, xml_str)
+        self.assertRaises(BaseException, get_xml_length, xml_str)
 
     def test_missing_bracket2(self):
         xml_str = '''
@@ -156,7 +156,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A;</payload>
 '''
-        self.assertRaises(KeyError, get_xml_length, xml_str)
+        self.assertRaises(BaseException, get_xml_length, xml_str)
 
     def test_missing_semicolon(self):
         xml_str = '''
@@ -166,7 +166,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A</payload>
 '''
-        self.assertRaises(KeyError, get_xml_length, xml_str)
+        self.assertRaises(BaseException, get_xml_length, xml_str)
 
     def test_missing_slash(self):
         xml_str = '''
@@ -187,7 +187,7 @@ class BillionLaughsTest(unittest.TestCase):
 ]>
 <payload>&A;</payload>
 '''
-        self.assertRaises(KeyError, get_xml_length, xml_str)
+        self.assertRaises(BaseException, get_xml_length, xml_str)
 
 if __name__ == '__main__':
     # f = open("testdoc", "r")
