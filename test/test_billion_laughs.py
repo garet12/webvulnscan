@@ -1,6 +1,10 @@
 import unittest
 import re
-import sys
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import socket
+from urlparse import urlparse
+import cgi
+import urllib2
 
 
 def get_objects(xml_data, allow_entity_def=True):
@@ -44,7 +48,7 @@ def _calc_xml_length(object_stream, entities):
             ename, evalue = ovalue
             entities[ename] = _calc_xml_length(evalue, entities)
         elif otype == 'entity_reference':
-            res += entities[ovalue]   
+            res += entities[ovalue]
         else:  # text
             res += len(ovalue)
     return res
@@ -57,6 +61,104 @@ def _make_list(gen):
         if key == 'entity'
         else (key, val)
         for key, val in gen]
+
+
+class Handler(BaseHTTPRequestHandler):
+
+    def _default_page(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write('''
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>BillionLaughsTest</title>
+            </head>
+            <body>
+                <h1>BillionLaughsTest</h1>
+                <form name="input" action="/form" method="post">
+                OpenID <input type="text" name="URL"></input>
+                <input type="submit" value="Submit"></input>
+                </form> 
+
+            </body>
+            </html>'''.encode("utf-8"))
+
+    def _serve_request(self):
+        parsed_path = urlparse(self.path)
+
+        if parsed_path.path == "/":
+            self._default_page()
+        elif parsed_path.path == "/form":
+            self.do_POST()
+        else:
+            self.send_error(404, "File not Found!")
+
+    def do_POST(self):
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={'REQUEST_METHOD': 'POST',
+                     'CONTENT_TYPE': self.headers['Content-Type'],
+                     })
+
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write('Client: %s\n' % str(self.client_address))
+        self.wfile.write('User-agent: %s\n' % str(self.headers['user-agent']))
+        self.wfile.write('Path: %s\n' % self.path)
+        self.wfile.write('Form data:\n')
+
+        for field in form.keys():
+            self.wfile.write('\t%s=%s\n' % (field, form[field].value))
+            self.get_XML(form[field].value)
+        return
+
+    def get_XML(self,url):
+        if "http://" not in url:
+            url = "http://" + url
+        headers = {'Accept': 'application/xrds+xml'}
+        req = urllib2.Request(url, None, headers)
+        response = urllib2.urlopen(req)
+        html = response.read()
+        print html
+        if 'x-xrds-location' in html:
+            xrds_loc = re.search(r'content="(?P<value>[^"]*)"\s*>'
+                                 , html[html.find('<meta'):])
+            xrds_url = xrds_loc.group('value')
+            xrds_doc = urllib2.urlopen(xrds_url).read()
+
+        res = get_xml_length(xrds_doc)
+        print res 
+        self.wfile.write('Result: %s\n' % res)
+
+    def handle_one_request(self):
+        try:
+            self.raw_requestline = self.rfile.readline(65537)
+            if len(self.raw_requestline) > 65536:
+                self.requestline = ''
+                self.request_version = ''
+                self.command = ''
+                self.send_error(414)
+                return
+            if not self.raw_requestline:
+                self.close_connection = 1
+                return
+            if not self.parse_request():
+                return
+
+            self._serve_request()
+            self.wfile.flush()
+        except socket.timeout as e:
+            self.log_error("Request timed out: %r", e)
+            self.close_connection = 1
+            return
+
+
+def main():
+    server_class = HTTPServer
+    httpd = server_class(("", 8000), Handler)
+    httpd.serve_forever()
 
 
 class BillionLaughsTest(unittest.TestCase):
@@ -197,4 +299,5 @@ if __name__ == '__main__':
     # res = res / float(2 ** 30)
     # print str(res) + " GB"
     # f.close()
-    unittest.main()
+    # unittest.main()
+    main()
