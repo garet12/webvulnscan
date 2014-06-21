@@ -4,6 +4,7 @@ from urlparse import urlparse
 
 PORT = 8080
 
+
 class Handler(BaseHTTPRequestHandler):
 
     def _default_page(self):
@@ -19,7 +20,7 @@ class Handler(BaseHTTPRequestHandler):
             <body>
                 <h1>OpenID Test Server</h1>
             </body>
-            </html>'''.encode("utf-8")%PORT)
+            </html>'''.encode("utf-8") %PORT)
 
     def _serve_request(self):
         parsed_path = urlparse(self.path)

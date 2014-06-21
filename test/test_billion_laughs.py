@@ -120,6 +120,7 @@ class Handler(BaseHTTPRequestHandler):
             url = "http://" + url
         headers = {'Accept': 'application/xrds+xml'}
         req = urllib2.Request(url, None, headers)
+
         try:
             response = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
@@ -136,16 +137,18 @@ class Handler(BaseHTTPRequestHandler):
 
         if xrds_loc:
             xrds_url = xrds_loc.group('value')
+
             try:
                 xrds_doc = urllib2.urlopen(xrds_url)
             except urllib2.HTTPError, e:
                 self.wfile.write(
-                '%s There was a problem with your request!' % e.code)
+                    '%s There was a problem with your request!' % e.code)
                 return
             except urllib2.URLError, e:
                 self.wfile.write('%s' % e.args)
                 return
-            xrds_doc=xrds_doc.read()
+
+            xrds_doc = xrds_doc.read()
             res = get_xml_length(xrds_doc)
             # time.sleep(res/100000)
             print res
