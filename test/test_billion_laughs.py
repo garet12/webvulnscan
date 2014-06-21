@@ -5,7 +5,7 @@ import socket
 from urlparse import urlparse
 import cgi
 import urllib2
-
+import time
 
 def get_objects(xml_data, allow_entity_def=True):
     idx = 0
@@ -114,22 +114,26 @@ class Handler(BaseHTTPRequestHandler):
             self.get_XML(form[field].value)
         return
 
-    def get_XML(self,url):
+    def get_XML(self, url):
         if "http://" not in url:
             url = "http://" + url
         headers = {'Accept': 'application/xrds+xml'}
         req = urllib2.Request(url, None, headers)
         response = urllib2.urlopen(req)
         html = response.read()
+        #TODO Einfachen Server schreiben, der XML Datei schickt, anstatt Python-OpenID
+        #TODO Folgenden Code so schreiben, dass er verschiedene Fehler abdecken kann (Exception schmeissen geht auch)
+        #
         print html
-        if 'x-xrds-location' in html:
-            xrds_loc = re.search(r'content="(?P<value>[^"]*)"\s*>'
-                                 , html[html.find('<meta'):])
+        if 'x-xrds-location' in html or 'X-XRDS-Location' in html:
+            xrds_loc = re.search(
+                r'content="(?P<value>[^"]*)"\s*', html[html.find('<meta'):])
             xrds_url = xrds_loc.group('value')
             xrds_doc = urllib2.urlopen(xrds_url).read()
 
         res = get_xml_length(xrds_doc)
-        print res 
+        #time.sleep(res/100000)
+        print res
         self.wfile.write('Result: %s\n' % res)
 
     def handle_one_request(self):
