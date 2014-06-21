@@ -36,7 +36,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'application/xrds+xml')
         self.end_headers()
 
-        self.wfile.write("""\
+        self.wfile.write('''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE lolz [
   <!ENTITY lol "lol">
@@ -65,7 +65,7 @@ class Handler(BaseHTTPRequestHandler):
   </XRD>
 
 </xrds:XRDS>
-""")
+''')
 
     def handle_one_request(self):
         try:

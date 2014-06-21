@@ -7,6 +7,7 @@ import cgi
 import urllib2
 import time
 
+
 def get_objects(xml_data, allow_entity_def=True):
     idx = 0
     while idx < len(xml_data):
@@ -82,7 +83,7 @@ class Handler(BaseHTTPRequestHandler):
                 </form> 
 
             </body>
-            </html>'''.encode("utf-8"))
+        </html>'''.encode("utf-8"))
 
     def _serve_request(self):
         parsed_path = urlparse(self.path)
@@ -119,22 +120,39 @@ class Handler(BaseHTTPRequestHandler):
             url = "http://" + url
         headers = {'Accept': 'application/xrds+xml'}
         req = urllib2.Request(url, None, headers)
-        response = urllib2.urlopen(req)
-        html = response.read()
-        #TODO Einfachen Server schreiben, der XML Datei schickt, anstatt Python-OpenID
-        #TODO Folgenden Code so schreiben, dass er verschiedene Fehler abdecken kann (Exception schmeissen geht auch)
-        #
-        print html
-        if 'x-xrds-location' in html or 'X-XRDS-Location' in html:
-            xrds_loc = re.search(
-                r'content="(?P<value>[^"]*)"\s*', html[html.find('<meta'):])
-            xrds_url = xrds_loc.group('value')
-            xrds_doc = urllib2.urlopen(xrds_url).read()
+        try:
+            response = urllib2.urlopen(req)
+        except urllib2.HTTPError, e:
+            self.wfile.write(
+                '%s There was a problem with your request!' % e.code)
+            return
+        except urllib2.URLError, e:
+            self.wfile.write('%s' % e.args)
+            return
 
-        res = get_xml_length(xrds_doc)
-        #time.sleep(res/100000)
-        print res
-        self.wfile.write('Result: %s\n' % res)
+        html = response.read()
+        xrds_loc = re.search(
+            r'<meta\s+http-equiv="x-xrds-Location"\s+content="(?P<value>[^"]*)"\s*', html, re.IGNORECASE)
+
+        if xrds_loc:
+            xrds_url = xrds_loc.group('value')
+            try:
+                xrds_doc = urllib2.urlopen(xrds_url)
+            except urllib2.HTTPError, e:
+                self.wfile.write(
+                '%s There was a problem with your request!' % e.code)
+                return
+            except urllib2.URLError, e:
+                self.wfile.write('%s' % e.args)
+                return
+            xrds_doc=xrds_doc.read()
+            res = get_xml_length(xrds_doc)
+            # time.sleep(res/100000)
+            print res
+            self.wfile.write('Result: %s\n' % res)
+
+        else:
+            self.wfile.write('XML document could not be found')
 
     def handle_one_request(self):
         try:
