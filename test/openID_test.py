@@ -20,7 +20,7 @@ class Handler(BaseHTTPRequestHandler):
             <body>
                 <h1>OpenID Test Server</h1>
             </body>
-            </html>'''.encode("utf-8") %PORT)
+        </html>'''.encode("utf-8") % PORT)
 
     def _serve_request(self):
         parsed_path = urlparse(self.path)
@@ -28,16 +28,39 @@ class Handler(BaseHTTPRequestHandler):
         if parsed_path.path == "/":
             self._default_page()
         elif parsed_path.path == "/serverxml":
-            self.showServerXML()
+            self.showServerXML(None)
+        elif parsed_path.path == "/serverxml_dangerous_billion":
+            self.showServerXML("dangerous_billion")
+        elif parsed_path.path == "/serverxml_dangerous_quadratic":
+            self.showServerXML("dangerous_quadratic")
         else:
             self.send_error(404, "File not Found!")
 
-    def showServerXML(self):
+    def showServerXML(self, xmlState=None):
         self.send_response(200)
         self.send_header('Content-type', 'application/xrds+xml')
         self.end_headers()
 
-        self.wfile.write('''\
+        if xmlState is None:
+            self.wfile.write('''\
+<?xml version="1.0" encoding="UTF-8"?>
+<xrds:XRDS
+    xmlns:xrds="xri://$xrds"
+    xmlns="xri://$xrd*($v*2.0)">
+  <XRD>
+
+    <Service priority="0">
+      <Type></Type>
+      <URI></URI>
+    </Service>
+
+  </XRD>
+
+</xrds:XRDS>
+'''.encode("utf-8"))
+
+        elif xmlState == "dangerous_billion":
+            self.wfile.write('''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE lolz [
   <!ENTITY lol "lol">
@@ -66,7 +89,15 @@ class Handler(BaseHTTPRequestHandler):
   </XRD>
 
 </xrds:XRDS>
-''')
+    '''.encode("utf-8"))
+        else: #quadratic blowup
+            self.wfile.write(''' 
+<?xml version="1.0"?>
+<!DOCTYPE payload [
+<!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+]>
+<payload>&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;</payload>
+'''.encode("utf-8"))
 
     def handle_one_request(self):
         try:
@@ -92,8 +123,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    server_class = HTTPServer
-    httpd = server_class(("", PORT), Handler)
+    httpd = HTTPServer(("", PORT), Handler)
     httpd.serve_forever()
 
 if __name__ == '__main__':
