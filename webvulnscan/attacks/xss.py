@@ -1,4 +1,4 @@
-from ..utils import attack, change_parameter,modify_parameter
+from ..utils import attack, change_parameter
 
 XSS_STRING = u'<script>alert("XSS_STRING");</script>'
 
