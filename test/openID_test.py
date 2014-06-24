@@ -7,7 +7,7 @@ PORT = 8080
 
 class Handler(BaseHTTPRequestHandler):
 
-    def _default_page(self):
+    def _default_page(self,pageState="serverxml"):
         self.send_response(200)
         self.end_headers()
         self.wfile.write('''
@@ -15,18 +15,21 @@ class Handler(BaseHTTPRequestHandler):
         <html>
             <head>
                 <title>OpenID Test Server</title>
-                <meta http-equiv="X-XRDS-Location" content="http://localhost:%i/serverxml">
+                <meta http-equiv="X-XRDS-Location" content="http://localhost:%i/%s">
             </head>
             <body>
                 <h1>OpenID Test Server</h1>
             </body>
-        </html>'''.encode("utf-8") % PORT)
+        </html>'''.encode("utf-8") % (PORT,pageState))
 
     def _serve_request(self):
         parsed_path = urlparse(self.path)
-
         if parsed_path.path == "/":
-            self._default_page()
+            self._default_page("serverxml")
+        elif parsed_path.path == "/db":
+            self._default_page("serverxml_dangerous_billion")
+        elif parsed_path.path == "/dq":
+            self._default_page("serverxml_dangerous_quadratic")
         elif parsed_path.path == "/serverxml":
             self.showServerXML(None)
         elif parsed_path.path == "/serverxml_dangerous_billion":
@@ -90,9 +93,9 @@ class Handler(BaseHTTPRequestHandler):
 
 </xrds:XRDS>
     '''.encode("utf-8"))
-        else: #quadratic blowup
-            self.wfile.write(''' 
-<?xml version="1.0"?>
+        else:  # quadratic blowup
+            self.wfile.write('''\
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE payload [
 <!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
 ]>

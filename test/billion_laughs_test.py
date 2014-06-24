@@ -136,10 +136,10 @@ class Handler(BaseHTTPRequestHandler):
         except urllib2.HTTPError, e:
             self.wfile.write(
                 '%s There was a problem with your request!' % e.code)
-            return
+            return None
         except urllib2.URLError, e:
             self.wfile.write('%s' % e.args)
-            return
+            return None
 
         html = response.read()
         xrds_loc = re.search(
@@ -153,10 +153,10 @@ class Handler(BaseHTTPRequestHandler):
             except urllib2.HTTPError, e:
                 self.wfile.write(
                     '%s There was a problem with your request!' % e.code)
-                return
+                return None
             except urllib2.URLError, e:
                 self.wfile.write('%s' % e.args)
-                return
+                return None
 
             return xrds_doc.read()
 
