@@ -56,7 +56,7 @@ def form_client():
 
     def xss_site(req):
         if 'url' in req.parameters:
-            xml=get_XML(req.parameters['url'])
+            xml = get_XML(req.parameters['url'])
             if xml is not None:
                 res = billion_laughs_test.get_xml_length(xml)
                 return u'<html>%s</html>' % res

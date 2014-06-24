@@ -7,7 +7,7 @@ PORT = 8080
 
 class Handler(BaseHTTPRequestHandler):
 
-    def _default_page(self,pageState="serverxml"):
+    def _default_page(self, pageState="serverxml"):
         self.send_response(200)
         self.end_headers()
         self.wfile.write('''
@@ -20,7 +20,7 @@ class Handler(BaseHTTPRequestHandler):
             <body>
                 <h1>OpenID Test Server</h1>
             </body>
-        </html>'''.encode("utf-8") % (PORT,pageState))
+        </html>'''.encode("utf-8") % (PORT, pageState))
 
     def _serve_request(self):
         parsed_path = urlparse(self.path)
