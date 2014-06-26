@@ -48,16 +48,17 @@ def get_XML(url):
             return None
 
 
-def form_client():
+def form_client(value=""):
     form = u'''<html><form action="./send" method="post">
-                    <input name="url" type="text" />
+                    <input name="url" value="%s" type="text" />
                     <input type="submit" value="Submit"></input>
-                </form></html>'''
+                </form></html>''' % value
 
-    def xss_site(req):
+    def result(req):
         if 'url' in req.parameters:
             xml = get_XML(req.parameters['url'])
             if xml is not None:
+                bla = ET.fromstring(xml)
                 res = billion_laughs_test.get_xml_length(xml)
                 return u'<html>%s</html>' % res
             else:
@@ -67,7 +68,7 @@ def form_client():
 
     return {
         '/': form,
-        '/send': xss_site,
+        '/send': result,
     }
 
 
@@ -80,6 +81,10 @@ class billion_laughs(unittest.TestCase):
             '/': u'''<html></html>''',
         }
 
-    @tutil.webtest(True)
+    @tutil.webtest(False)
     def test_billion_laughs_form():
         return form_client()
+
+    # @tutil.webtest(True)
+    # def test_billion_laughs_dangerous():
+    #    return form_client("http://localhost:8080/db")
