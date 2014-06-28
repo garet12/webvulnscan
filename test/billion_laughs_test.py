@@ -6,6 +6,7 @@ from urlparse import urlparse
 import cgi
 import urllib2
 import time
+import xml.etree.ElementTree as ET
 
 
 def get_objects(xml_data, allow_entity_def=True):
@@ -112,16 +113,19 @@ class Handler(BaseHTTPRequestHandler):
 
         for field in form.keys():
             self.wfile.write('\t%s=%s\n' % (field, form[field].value))
+            if field =='':
+                continue
             xrds_doc = self.get_XML(form[field].value)
 
         if xrds_doc is not None:
             res = get_xml_length(xrds_doc)
-            # time.sleep(res/100000)
+            bla = ET.fromstring(xrds_doc)
+            #time.sleep(res/100000)
             print res
             self.wfile.write('Result: %s\n' % res)
 
         else:
-            self.wfile.write('XML document could not be found')
+            self.wfile.write('XML document could not be found\n')
 
         return
 
@@ -135,7 +139,7 @@ class Handler(BaseHTTPRequestHandler):
             response = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
             self.wfile.write(
-                '%s There was a problem with your request!' % e.code)
+                '%s There was a problem with your request!\n' % e.code)
             return None
         except urllib2.URLError, e:
             self.wfile.write('%s' % e.args)
@@ -152,7 +156,7 @@ class Handler(BaseHTTPRequestHandler):
                 xrds_doc = urllib2.urlopen(xrds_url)
             except urllib2.HTTPError, e:
                 self.wfile.write(
-                    '%s There was a problem with your request!' % e.code)
+                    '%s There was a problem with your request!\n' % e.code)
                 return None
             except urllib2.URLError, e:
                 self.wfile.write('%s' % e.args)

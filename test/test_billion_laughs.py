@@ -19,7 +19,7 @@ def get_XML(url):
             response = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
             print(
-                '%s There was a problem with your request!' % e.code)
+                '%s There was a problem with your request!\n' % e.code)
             return None
         except urllib2.URLError, e:
             print('%s' % e.args)
@@ -36,7 +36,7 @@ def get_XML(url):
                 xrds_doc = urllib2.urlopen(xrds_url)
             except urllib2.HTTPError, e:
                 print(
-                    '%s There was a problem with your request!' % e.code)
+                    '%s There was a problem with your request!\n' % e.code)
                 return None
             except urllib2.URLError, e:
                 print('%s' % e.args)
@@ -48,19 +48,22 @@ def get_XML(url):
             return None
 
 
-def form_client(value=""):
+def form_client(value="",vuln=False):
     form = u'''<html><form action="./send" method="post">
-                    <input name="url" value="%s" type="text" />
-                    <input type="submit" value="Submit"></input>
+                    <input name="url" value="%s" type="text">
+                    <input type="submit" value="submit" >
                 </form></html>''' % value
 
     def result(req):
         if 'url' in req.parameters:
             xml = get_XML(req.parameters['url'])
             if xml is not None:
-                bla = ET.fromstring(xml)
-                res = billion_laughs_test.get_xml_length(xml)
-                return u'<html>%s</html>' % res
+                if vuln == True:
+                    ET.fromstring(xml)
+                    return u'<html>Dangerous</html>' 
+                else:
+                    res = billion_laughs_test.get_xml_length(xml)
+                    return u'<html>%s</html>' % res
             else:
                 return u'<html>XML document could not be found!</html>'
         else:
@@ -76,15 +79,19 @@ class billion_laughs(unittest.TestCase):
     attack = webvulnscan.attacks.billion_laughs
 
     @tutil.webtest(False)
-    def test_billion_laughs_static_site():
+    def test_static_site():
         return {
             '/': u'''<html></html>''',
         }
 
     @tutil.webtest(False)
-    def test_billion_laughs_form():
+    def test_form():
         return form_client()
 
-    # @tutil.webtest(True)
-    # def test_billion_laughs_dangerous():
-    #    return form_client("http://localhost:8080/db")
+    @tutil.webtest(True)
+    def test_billion_laughs_dangerous():
+        return form_client("http://localhost:8080/db",True)
+
+    @tutil.webtest(True)
+    def test_quadratic_blowup_dangerous():
+        return form_client("http://localhost:8080/dq",True)

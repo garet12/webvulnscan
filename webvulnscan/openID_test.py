@@ -94,13 +94,15 @@ class Handler(BaseHTTPRequestHandler):
 </xrds:XRDS>
     '''.encode("utf-8"))
         else:  # quadratic blowup
+            ent_a="AAA"*99999
+            ref_a="&A;"*99999
             self.wfile.write('''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE payload [
-<!ENTITY A "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+<!ENTITY A "%s">
 ]>
-<payload>&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;&A;</payload>
-'''.encode("utf-8"))
+<payload>%s</payload>
+'''.encode("utf-8")%(ent_a,ref_a))
 
     def handle_one_request(self):
         try:
