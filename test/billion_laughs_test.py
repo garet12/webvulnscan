@@ -119,8 +119,8 @@ class Handler(BaseHTTPRequestHandler):
 
         if xrds_doc is not None:
             res = get_xml_length(xrds_doc)
-            bla = ET.fromstring(xrds_doc)
-            #time.sleep(res/100000)
+            #ET.fromstring(xrds_doc)
+            time.sleep(res/1000000)
             print res
             self.wfile.write('Result: %s\n' % res)
 
