@@ -1,8 +1,16 @@
 import unittest
 import re
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+try:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+except ImportError:
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
 import socket
-from urlparse import urlparse
 import cgi
 import urllib2
 import time
@@ -121,7 +129,7 @@ class Handler(BaseHTTPRequestHandler):
             res = get_xml_length(xrds_doc)
             #ET.fromstring(xrds_doc)
             time.sleep(res/1000000)
-            print res
+            print(res)
             self.wfile.write('Result: %s\n' % res)
 
         else:

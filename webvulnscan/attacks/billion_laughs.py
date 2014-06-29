@@ -5,6 +5,7 @@ from ..openID_test import main
 
 OPENID_URL = "http://localhost:8080"
 OPENID_URL_BILLION_LAUGHS = "http://localhost:8080/db"
+OPENID_URL_QUADRATIC_BLOWUP = "http://localhost:8080/dq"
 
 
 def search(page):
@@ -18,8 +19,8 @@ def billion_laughs(client, log, form):
     server = multiprocessing.Process(target=main)
     server.start()
     for parameter in parameters:
-        print parameters
-        print parameter
+        print(parameters)
+        print(parameter)
         if parameter == '':
             continue
         if parameters[parameter] == 'abcdefgh':
