@@ -9,8 +9,7 @@ try:
 except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
-PORT = 8080
-
+PORT = 50161
 
 class Handler(BaseHTTPRequestHandler):
 
@@ -134,9 +133,11 @@ class Handler(BaseHTTPRequestHandler):
             return
 
 
-def main():
-    httpd = HTTPServer(("", PORT), Handler)
+def main(port):
+    global PORT
+    PORT=port
+    httpd = HTTPServer(("", port), Handler)
     httpd.serve_forever()
 
 if __name__ == '__main__':
-    main()
+    main(PORT)

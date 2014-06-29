@@ -47,11 +47,11 @@ def get_XML(url):
             return None
 
 
-def form_client(value="", vuln=False):
+def form_client(vuln=False):
     form = u'''<html><form action="./send" method="post">
-                    <input name="url" value="%s" type="text">
+                    <input name="url" type="text">
                     <input type="submit" value="submit" >
-                </form></html>''' % value
+                </form></html>'''
 
     def result(req):
         if 'url' in req.parameters:
@@ -87,9 +87,6 @@ class billion_laughs(unittest.TestCase):
         return form_client()
 
     @tutil.webtest(True)
-    def test_billion_laughs_dangerous1():
-        return form_client("http://localhost:8080/db", True)
+    def test_billion_laughs_dangerous():
+        return form_client(True)
 
-    @tutil.webtest(True)
-    def test_billion_laughs_dangerous2():
-        return form_client("http://localhost:8080/dq", True)

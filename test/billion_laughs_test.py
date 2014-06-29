@@ -129,7 +129,6 @@ class Handler(BaseHTTPRequestHandler):
             res = get_xml_length(xrds_doc)
             #ET.fromstring(xrds_doc)
             time.sleep(res/1000000)
-            print(res)
             self.wfile.write('Result: %s\n' % res)
 
         else:
@@ -334,12 +333,5 @@ class BillionLaughsTest(unittest.TestCase):
         self.assertRaises(BaseException, get_xml_length, xml_str)
 
 if __name__ == '__main__':
-    # f = open("testdoc", "r")
-    # xml_data = f.read()
-    # res = get_xml_length(xml_data)
-    # print str(res) + " Byte"
-    # res = res / float(2 ** 30)
-    # print str(res) + " GB"
-    # f.close()
     # unittest.main()
     main()

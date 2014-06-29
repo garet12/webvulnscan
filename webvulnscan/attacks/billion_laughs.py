@@ -3,10 +3,6 @@ import time
 import multiprocessing
 from ..openID_test import main
 
-OPENID_URL = "http://localhost:8080"
-OPENID_URL_BILLION_LAUGHS = "http://localhost:8080/db"
-OPENID_URL_QUADRATIC_BLOWUP = "http://localhost:8080/dq"
-
 
 def search(page):
     for form in page.get_forms():
@@ -15,8 +11,14 @@ def search(page):
 
 @attack(search)
 def billion_laughs(client, log, form):
+
+    port = 50162
+    openid_url = "http://localhost:%i" % port
+    openid_billion_laughs = "http://localhost:%i/db" % port
+    openid_quadratic_blowup = "http://localhost:%i/dq" % port
+
     parameters = dict(form.get_parameters())
-    server = multiprocessing.Process(target=main)
+    server = multiprocessing.Process(target=main, args=(port,))
     server.start()
     for parameter in parameters:
         print(parameters)
@@ -24,11 +26,11 @@ def billion_laughs(client, log, form):
         if parameter == '':
             continue
         if parameters[parameter] == 'abcdefgh':
-            xml_page = OPENID_URL_BILLION_LAUGHS
+            xml_page = openid_billion_laughs
         else:
             xml_page = parameters[parameter]
         attack_parameters = modify_parameter(parameters, parameter,
-                                             OPENID_URL)
+                                             openid_url)
         startTime = time.time()
         server.join(0.001)
         result = form.send(client, attack_parameters)
