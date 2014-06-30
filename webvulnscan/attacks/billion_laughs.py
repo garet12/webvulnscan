@@ -17,7 +17,7 @@ def billion_laughs(client, log, form):
                 parameters[key] = attack_url
 
         try:
-            result = form.send(client, parameters)
+            form.send(client, parameters, timeout=1)
         except socket.timeout:
             return True
         return False

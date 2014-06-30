@@ -14,7 +14,6 @@ import socket
 import cgi
 import urllib2
 import time
-import xml.etree.ElementTree as ET
 
 
 def get_objects(xml_data, allow_entity_def=True):
@@ -121,14 +120,13 @@ class Handler(BaseHTTPRequestHandler):
 
         for field in form.keys():
             self.wfile.write('\t%s=%s\n' % (field, form[field].value))
-            if field =='':
+            if field == '':
                 continue
             xrds_doc = self.get_XML(form[field].value)
 
         if xrds_doc is not None:
             res = get_xml_length(xrds_doc)
-            #ET.fromstring(xrds_doc)
-            time.sleep(res/1000000)
+            time.sleep(res / 1000000)
             self.wfile.write('Result: %s\n' % res)
 
         else:

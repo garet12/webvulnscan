@@ -8,6 +8,7 @@ from .utils import parse_content_type, NOT_A_PAGE_CONTENT_TYPES
 import gzip
 import zlib
 import webvulnscan.log
+import socket
 from .page import Page
 from .request import Request
 
@@ -82,11 +83,15 @@ class Client(object):
 
         return self._download(request)
 
-    def download_page(self, url_or_request, parameters=None, req_headers=None):
+    def download_page(self, url_or_request, parameters=None, req_headers=None,**kwargs):
         """ Downloads the content of a site, returns it as page.
         Throws NotAPage if the content is not a webpage.
         """
-
+        timeout=None
+        for key in kwargs:
+            if key=="timeout":
+                timeout=kwargs[key]
+        socket.setdefaulttimeout(timeout)
         request, status_code, html_bytes, headers = self.download(
             url_or_request, parameters, req_headers)
 

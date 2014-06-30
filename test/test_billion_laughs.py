@@ -5,7 +5,6 @@ import billion_laughs_test_app
 import tutil
 import webvulnscan.attacks.billion_laughs
 import time
-import xml.etree.ElementTree as ET
 
 
 def get_XML(url):
@@ -47,25 +46,22 @@ def get_XML(url):
             return None
 
 
-def form_client(vuln=False):
+def form_client(vulnerable=False):
     form = u'''<html><form action="./send" method="post">
                     <input name="openid" type="text">
                     <input type="submit" value="submit" >
                 </form></html>'''
 
     def result(req):
-        if 'openid' in req.parameters:
-            xml = get_XML(req.parameters['openid'])
-            if xml is not None:
-                res = billion_laughs_test_app.get_xml_length(xml)
-                if vuln == True:
-                    # ET.fromstring(xml)
-                    time.sleep(res / 10000)
-                return u'<html>%s</html>' % res
-            else:
-                return u'<html>XML document could not be found!</html>'
-        else:
+        if 'openid' not in req.parameters:
             return u'<html>There is no input!</html>'
+        xml = get_XML(req.parameters['openid'])
+        if xml is None:
+            return u'<html>XML document could not be found!</html>'
+        res = billion_laughs_test_app.get_xml_length(xml)
+        if vulnerable:
+            time.sleep(res / 10000)
+        return u'<html>%s</html>' % res
 
     return {
         '/': form,
@@ -89,4 +85,3 @@ class billion_laughs(unittest.TestCase):
     @tutil.webtest(True)
     def test_billion_laughs_dangerous():
         return form_client(True)
-

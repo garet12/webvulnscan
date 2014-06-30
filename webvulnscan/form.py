@@ -34,9 +34,9 @@ class Form(object):
         for textarea in self.document.findall('.//textarea'):
             yield textarea
 
-    def send(self, client, parameters):
+    def send(self, client, parameters,**kwargs):
         if self.method == "get":
             url = add_get_params(self.action, parameters)
             return client.download_page(url)
         else:
-            return client.download_page(self.action, parameters)
+            return client.download_page(self.action, parameters,**kwargs)
