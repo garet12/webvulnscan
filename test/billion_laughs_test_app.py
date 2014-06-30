@@ -86,8 +86,8 @@ class Handler(BaseHTTPRequestHandler):
             </head>
             <body>
                 <h1>BillionLaughsTest</h1>
-                <form name="input" action="/form" method="post">
-                OpenID <input type="text" name="URL"></input>
+                <form name="openid" action="/form" method="post">
+                OpenID <input type="text" name="openid"></input>
                 <input type="submit" value="Submit"></input>
                 </form> 
 

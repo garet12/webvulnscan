@@ -1,7 +1,7 @@
 import unittest
 import re
 import urllib2
-import billion_laughs_test
+import billion_laughs_test_app
 import tutil
 import webvulnscan.attacks.billion_laughs
 import time
@@ -49,15 +49,15 @@ def get_XML(url):
 
 def form_client(vuln=False):
     form = u'''<html><form action="./send" method="post">
-                    <input name="url" type="text">
+                    <input name="openid" type="text">
                     <input type="submit" value="submit" >
                 </form></html>'''
 
     def result(req):
-        if 'url' in req.parameters:
-            xml = get_XML(req.parameters['url'])
+        if 'openid' in req.parameters:
+            xml = get_XML(req.parameters['openid'])
             if xml is not None:
-                res = billion_laughs_test.get_xml_length(xml)
+                res = billion_laughs_test_app.get_xml_length(xml)
                 if vuln == True:
                     # ET.fromstring(xml)
                     time.sleep(res / 10000)

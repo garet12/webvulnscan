@@ -1,4 +1,5 @@
 import socket
+import multiprocessing
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -10,6 +11,7 @@ except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 PORT = 50161
+
 
 class Handler(BaseHTTPRequestHandler):
 
@@ -100,15 +102,15 @@ class Handler(BaseHTTPRequestHandler):
 </xrds:XRDS>
     '''.encode("utf-8"))
         else:  # quadratic blowup
-            ent_a="AAA"*99999
-            ref_a="&A;"*99999
+            ent_a = "AAA" * 99999
+            ref_a = "&A;" * 99999
             self.wfile.write('''\
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE payload [
 <!ENTITY A "%s">
 ]>
 <payload>%s</payload>
-'''.encode("utf-8")%(ent_a,ref_a))
+'''.encode("utf-8") % (ent_a, ref_a))
 
     def handle_one_request(self):
         try:
@@ -133,11 +135,31 @@ class Handler(BaseHTTPRequestHandler):
             return
 
 
-def main(port):
-    global PORT
-    PORT=port
-    httpd = HTTPServer(("", port), Handler)
+def main():
+    httpd = HTTPServer(("", PORT), Handler)
     httpd.serve_forever()
 
+
+class OpenIDServer():
+
+    class create_server():
+        benign_url = "http://localhost:%i" % PORT
+        evil_urls = ("http://localhost:%i/db" %
+                     PORT, "http://localhost:%i/dq" % PORT)
+
+        def __init__(self):
+            # self.config=config
+            self.server = None
+
+        def __enter__(self):
+            self.server = multiprocessing.Process(target=main)
+            self.server.start()
+            self.server.join(0.0001)
+            return self
+
+        def __exit__(self, type, value, traceback):
+            self.server.terminate()
+
+
 if __name__ == '__main__':
-    main(PORT)
+    main()
