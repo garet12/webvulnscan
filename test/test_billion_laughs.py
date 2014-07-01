@@ -4,7 +4,6 @@ import urllib2
 import xml_parser
 import tutil
 import webvulnscan.attacks.billion_laughs
-import time
 import socket
 
 
@@ -63,10 +62,8 @@ def form_client(vulnerable=False):
 
         res = xml_parser.get_xml_length(xml)
 
-        if vulnerable:
-            # ueber req timeout zeug uebergeben
+        if vulnerable and request.timeout<res:
             raise(socket.timeout)
-            time.sleep(res / 10000)
 
         return u'<html>%s</html>' % res
 

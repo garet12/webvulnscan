@@ -63,7 +63,7 @@ class Client(object):
 
         return (request, status_code, response_data, headers)
 
-    def download(self, url_or_request, parameters=None, headers=None):
+    def download(self, url_or_request, parameters=None, headers=None,**kwargs):
         """
         Downloads a URL, returns (request, status_code, response_data, headers)
         """
@@ -73,7 +73,7 @@ class Client(object):
             assert headers is None
             request = url_or_request.copy()
         else:
-            request = Request(url_or_request, parameters, headers)
+            request = Request(url_or_request, parameters, headers,**kwargs)
 
         for header, value in self.additional_headers.items():
             request.add_header(header, value)
@@ -94,9 +94,9 @@ class Client(object):
             if key == "timeout":
                 timeout = kwargs[key]
         socket.setdefaulttimeout(timeout)
-        
+
         request, status_code, html_bytes, headers = self.download(
-            url_or_request, parameters, req_headers)
+            url_or_request, parameters, req_headers,**kwargs)
 
         content_type, charset = parse_content_type(
             headers.get('Content-Type'),

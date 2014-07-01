@@ -6,7 +6,13 @@ from .compat import urlencode, parse_qs
 
 
 class Request(compat.Request):
-    def __init__(self, url, parameters=None, headers=None):
+
+    def __init__(self, url, parameters=None, headers=None, **kwargs):
+        self.timeout = None
+        for key in kwargs:
+            if key == "timeout":
+                self.timeout = kwargs[key]
+                
         self.parameters = parameters
         if parameters is None:
             data = None
