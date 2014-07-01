@@ -154,7 +154,7 @@ class OpenIDServer():
         def __enter__(self):
             self.server = multiprocessing.Process(target=main)
             self.server.start()
-            self.server.join(0.0001)
+            self.server.join(0.001)
             return self
 
         def __exit__(self, type, value, traceback):

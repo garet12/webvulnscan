@@ -1,10 +1,11 @@
 import unittest
 import re
 import urllib2
-import billion_laughs_test_app
+import xml_parser
 import tutil
 import webvulnscan.attacks.billion_laughs
 import time
+import socket
 
 
 def get_XML(url):
@@ -27,23 +28,24 @@ def get_XML(url):
         xrds_loc = re.search(
             r'<meta\s+http-equiv="x-xrds-Location"\s+content="(?P<value>[^"]*)"\s*', html, re.IGNORECASE)
 
-        if xrds_loc:
-            xrds_url = xrds_loc.group('value')
-
-            try:
-                xrds_doc = urllib2.urlopen(xrds_url)
-            except urllib2.HTTPError, e:
-                print(
-                    '%s There was a problem with your request!\n' % e.code)
-                return None
-            except urllib2.URLError, e:
-                print('%s' % e.args)
-                return None
-
-            return xrds_doc.read()
-
-        else:
+        if not xrds_loc:
             return None
+
+        xrds_url = xrds_loc.group('value')
+
+        try:
+            xrds_doc = urllib2.urlopen(xrds_url)
+        except urllib2.HTTPError, e:
+            print(
+                '%s There was a problem with your request!\n' % e.code)
+            return None
+        except urllib2.URLError, e:
+            print('%s' % e.args)
+            return None
+
+        return xrds_doc.read()
+
+
 
 
 def form_client(vulnerable=False):
@@ -55,11 +57,14 @@ def form_client(vulnerable=False):
     def result(req):
         if 'openid' not in req.parameters:
             return u'<html>There is no input!</html>'
+
         xml = get_XML(req.parameters['openid'])
         if xml is None:
             return u'<html>XML document could not be found!</html>'
-        res = billion_laughs_test_app.get_xml_length(xml)
+        res = xml_parser.get_xml_length(xml)
         if vulnerable:
+            # ueber req timeout zeug uebergeben
+            raise(socket.timeout)
             time.sleep(res / 10000)
         return u'<html>%s</html>' % res
 

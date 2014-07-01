@@ -22,6 +22,7 @@ def billion_laughs(client, log, form):
             return True
         return False
 
+    # Config uebergabe fuer OpenIDServer einrichten
     with OpenIDServer.create_server() as openid_server:
         if attack(openid_server.benign_url):
             log('warn', openid_server.benign_url, "Billion Laughs",
