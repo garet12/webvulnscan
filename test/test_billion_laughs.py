@@ -9,43 +9,41 @@ import socket
 
 
 def get_XML(url):
-        if "http://" not in url:
-            url = "http://" + url
-        headers = {'Accept': 'application/xrds+xml'}
-        req = urllib2.Request(url, None, headers)
+    if "http://" not in url:
+        url = "http://" + url
+    headers = {'Accept': 'application/xrds+xml'}
+    req = urllib2.Request(url, None, headers)
 
-        try:
-            response = urllib2.urlopen(req)
-        except urllib2.HTTPError, e:
-            print(
-                '%s There was a problem with your request!\n' % e.code)
-            return None
-        except urllib2.URLError, e:
-            print('%s' % e.args)
-            return None
+    try:
+        response = urllib2.urlopen(req)
+    except urllib2.HTTPError, e:
+        print(
+            '%s There was a problem with your request!\n' % e.code)
+        return None
+    except urllib2.URLError, e:
+        print('%s' % e.args)
+        return None
 
-        html = response.read()
-        xrds_loc = re.search(
-            r'<meta\s+http-equiv="x-xrds-Location"\s+content="(?P<value>[^"]*)"\s*', html, re.IGNORECASE)
+    html = response.read()
+    xrds_loc = re.search(
+        r'<meta\s+http-equiv="x-xrds-Location"\s+content="(?P<value>[^"]*)"\s*', html, re.IGNORECASE)
 
-        if not xrds_loc:
-            return None
+    if not xrds_loc:
+        return None
 
-        xrds_url = xrds_loc.group('value')
+    xrds_url = xrds_loc.group('value')
 
-        try:
-            xrds_doc = urllib2.urlopen(xrds_url)
-        except urllib2.HTTPError, e:
-            print(
-                '%s There was a problem with your request!\n' % e.code)
-            return None
-        except urllib2.URLError, e:
-            print('%s' % e.args)
-            return None
+    try:
+        xrds_doc = urllib2.urlopen(xrds_url)
+    except urllib2.HTTPError, e:
+        print(
+            '%s There was a problem with your request!\n' % e.code)
+        return None
+    except urllib2.URLError, e:
+        print('%s' % e.args)
+        return None
 
-        return xrds_doc.read()
-
-
+    return xrds_doc.read()
 
 
 def form_client(vulnerable=False):
@@ -54,18 +52,22 @@ def form_client(vulnerable=False):
                     <input type="submit" value="submit" >
                 </form></html>'''
 
-    def result(req):
-        if 'openid' not in req.parameters:
+    def result(request):
+        if 'openid' not in request.parameters:
             return u'<html>There is no input!</html>'
 
-        xml = get_XML(req.parameters['openid'])
+        xml = get_XML(request.parameters['openid'])
+
         if xml is None:
             return u'<html>XML document could not be found!</html>'
+
         res = xml_parser.get_xml_length(xml)
+
         if vulnerable:
             # ueber req timeout zeug uebergeben
             raise(socket.timeout)
             time.sleep(res / 10000)
+
         return u'<html>%s</html>' % res
 
     return {

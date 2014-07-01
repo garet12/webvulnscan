@@ -14,11 +14,13 @@ from .request import Request
 
 
 class NotAPage(Exception):
+
     """ The content at the URL in question is not a webpage, but something
     static (image, text, etc.) """
 
 
 class Client(object):
+
     """ Client provides a easy interface for accessing web content. """
 
     def __init__(self, log=webvulnscan.log):
@@ -83,15 +85,16 @@ class Client(object):
 
         return self._download(request)
 
-    def download_page(self, url_or_request, parameters=None, req_headers=None,**kwargs):
+    def download_page(self, url_or_request, parameters=None, req_headers=None, **kwargs):
         """ Downloads the content of a site, returns it as page.
         Throws NotAPage if the content is not a webpage.
         """
-        timeout=None
+        timeout = None
         for key in kwargs:
-            if key=="timeout":
-                timeout=kwargs[key]
+            if key == "timeout":
+                timeout = kwargs[key]
         socket.setdefaulttimeout(timeout)
+        
         request, status_code, html_bytes, headers = self.download(
             url_or_request, parameters, req_headers)
 
