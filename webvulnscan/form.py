@@ -6,6 +6,7 @@ from .textarea import TextArea
 
 
 class Form(object):
+
     def __init__(self, url, document):
         self.document = document
         self.action = urljoin(url, document.attrib.get('action'))
@@ -34,9 +35,9 @@ class Form(object):
         for textarea in self.document.findall('.//textarea'):
             yield textarea
 
-    def send(self, client, parameters,**kwargs):
+    def send(self, client, parameters, **kwargs):
         if self.method == "get":
             url = add_get_params(self.action, parameters)
-            return client.download_page(url)
+            return client.download_page(url, **kwargs)
         else:
-            return client.download_page(self.action, parameters,**kwargs)
+            return client.download_page(self.action, parameters, **kwargs)

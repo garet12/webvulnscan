@@ -120,9 +120,9 @@ def attack(searchfunc=None):
     if searchfunc is None:
         searchfunc = lambda page: [(page,)]
 
-    def run(cls, client, log, page):
+    def run(cls, client, log, page, **kwargs):
         for s in cls.search(page):
-            cls.attack(client, log, *s)
+            cls.attack(client, log, *s, **kwargs)
 
     def decorator(attackfunc):
         return type(attackfunc.__name__, (object,), {

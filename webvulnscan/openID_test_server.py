@@ -10,6 +10,7 @@ try:
 except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
+IP = "localhost"
 PORT = 50161
 
 
@@ -23,12 +24,12 @@ class Handler(BaseHTTPRequestHandler):
         <html>
             <head>
                 <title>OpenID Test Server</title>
-                <meta http-equiv="X-XRDS-Location" content="http://localhost:%i/%s">
+                <meta http-equiv="X-XRDS-Location" content="http://%s:%i/%s">
             </head>
             <body>
                 <h1>OpenID Test Server</h1>
             </body>
-        </html>'''.encode("utf-8") % (PORT, pageState))
+        </html>'''.encode("utf-8") % (IP, PORT, pageState))
 
     def _serve_request(self):
         parsed_path = urlparse(self.path)
@@ -143,13 +144,18 @@ def main():
 class OpenIDServer():
 
     class create_server():
-        benign_url = "http://localhost:%i" % PORT
-        evil_urls = ("http://localhost:%i/db" %
-                     PORT, "http://localhost:%i/dq" % PORT)
 
-        def __init__(self):
-            # self.config=config
+        def __init__(self, config):
+            # Random Port bei lokalem Test -> Wie bekomme ich den Port dann raus ?
+            self.config = config
+            if self.config:
+                global IP, PORT
+                IP = self.config[0]
+                PORT = int(self.config[1])
             self.server = None
+            self.benign_url = "http://%s:%i" % (IP, PORT)
+            self.evil_urls = ("http://%s:%i/db" %
+                             (IP, PORT), "http://%s:%i/dq" % (IP, PORT))
 
         def __enter__(self):
             self.server = multiprocessing.Process(target=main)

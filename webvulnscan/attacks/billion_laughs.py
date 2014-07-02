@@ -9,7 +9,7 @@ def search(page):
 
 
 @attack(search)
-def billion_laughs(client, log, form):
+def billion_laughs(client, log, form, **kwargs):
     def attack(attack_url):
         parameters = dict(form.get_parameters())
         for key in parameters:
@@ -23,7 +23,10 @@ def billion_laughs(client, log, form):
         return False
 
     # Config uebergabe fuer OpenIDServer einrichten
-    with OpenIDServer.create_server() as openid_server:
+    config=[]
+    for key in kwargs:
+        config.append(kwargs[key])
+    with OpenIDServer.create_server(config) as openid_server:
         if attack(openid_server.benign_url):
             log('warn', openid_server.benign_url, "Billion Laughs",
                 "Test did not work")

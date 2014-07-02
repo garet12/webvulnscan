@@ -84,6 +84,23 @@ def parse_options():
                                      'for standard output).')
     parser.add_option_group(configuration_options)
 
+    billion_laughs_configuration_options = OptionGroup(
+        parser, "Billion Laughs configuration",
+        "You are able to specify"
+        "some options for the"
+        "Billion Laughs test.")
+
+    billion_laughs_configuration_options.add_option(
+        '--net', dest='bl_config',
+        action='store', default=None,
+        nargs=2,
+        help='This option will run'
+        'the Billion Laughs test'
+        'on a network application.'
+        'You need to pass your IP and an unused port.'
+        'If this option is not used'
+        'you can just test local applications.')
+
     # Options for scanning for specific vulnerabilities.
     attack_options = OptionGroup(parser, "Attacks",
                                  "If you specify own or several of the "

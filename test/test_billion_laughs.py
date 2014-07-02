@@ -63,13 +63,13 @@ def form_client(vulnerable=False):
 
         res = xml_parser.get_xml_length(xml)
 
-        timeout=getattr(request,'timeout',None)
-        if vulnerable: 
+        timeout = getattr(request, 'timeout', None)
+        if vulnerable:
             if not timeout:
-                time.sleep(res/100000)
-            elif timeout<res:
+                time.sleep(res / 100000)
+            elif timeout < res:
                 raise socket.timeout()
-                
+
         return u'<html>%s</html>' % res
 
     return {
