@@ -23,7 +23,7 @@ def billion_laughs(client, log, form, **kwargs):
         return False
 
     # Config uebergabe fuer OpenIDServer einrichten
-    config=[]
+    config = []
     for key in kwargs:
         config.append(kwargs[key])
     with OpenIDServer.create_server(config) as openid_server:

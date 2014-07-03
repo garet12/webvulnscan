@@ -87,8 +87,9 @@ def run(options, targets):
                 log('info', page.url, 'crawler', 'Scanning ...')
 
                 for attack in attacks:
-                    if attack.__name__ =="billion_laughs":
-                        attack(client,log,page,ip=options.bl_config[0],port=options.bl_config[1])
+                    if attack.__name__ == "billion_laughs":
+                        attack(client, log, page, ip=options.bl_config[
+                               0], port=options.bl_config[1])
                     else:
                         attack(client, log, page)
 

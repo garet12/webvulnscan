@@ -10,8 +10,8 @@ try:
 except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
-IP = "localhost"
-PORT = 50161
+IP = None
+PORT = None
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -136,8 +136,13 @@ class Handler(BaseHTTPRequestHandler):
             return
 
 
-def main():
-    httpd = HTTPServer(("", PORT), Handler)
+def main(queue, ip, port):
+    httpd = HTTPServer(("", port), Handler)
+    global IP, PORT
+    IP = ip
+    PORT = httpd.server_port
+    if queue:
+        queue.put(PORT)
     httpd.serve_forever()
 
 
@@ -146,20 +151,25 @@ class OpenIDServer():
     class create_server():
 
         def __init__(self, config):
-            # Random Port bei lokalem Test -> Wie bekomme ich den Port dann raus ?
             self.config = config
+            self.ip = "localhost"
+            self.port = 0
             if self.config:
-                global IP, PORT
-                IP = self.config[0]
-                PORT = int(self.config[1])
+                self.ip = self.config[0]
+                self.port = int(self.config[1])
             self.server = None
-            self.benign_url = "http://%s:%i" % (IP, PORT)
-            self.evil_urls = ("http://%s:%i/db" %
-                             (IP, PORT), "http://%s:%i/dq" % (IP, PORT))
+            self.benign_url = None
+            self.evil_urls = None
 
         def __enter__(self):
-            self.server = multiprocessing.Process(target=main)
+            queue = multiprocessing.Queue()
+            self.server = multiprocessing.Process(
+                target=main, args=(queue, self.ip, self.port))
             self.server.start()
+            self.port = queue.get()
+            self.benign_url = "http://%s:%i" % (self.ip, self.port)
+            self.evil_urls = ("http://%s:%i/db" %
+                             (self.ip, self.port), "http://%s:%i/dq" % (self.ip, self.port))
             self.server.join(0.001)
             return self
 
@@ -168,4 +178,4 @@ class OpenIDServer():
 
 
 if __name__ == '__main__':
-    main()
+    main(None, "localhost", 12345)
