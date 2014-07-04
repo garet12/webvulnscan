@@ -155,11 +155,11 @@ class Create_server(object):
                 except urllib2.HTTPError:
                     i += 1
                     time.sleep(wait_time)
-                    wait_time = wait_time * 10
+                    wait_time *= 10
                 except urllib2.URLError:
                     i += 1
                     time.sleep(wait_time)
-                    wait_time = wait_time * 10
+                    wait_time *= 10
             return False
 
         if test_request(self.benign_url):
