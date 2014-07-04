@@ -1,5 +1,7 @@
 import socket
+import urllib2
 import multiprocessing
+import time
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -9,9 +11,6 @@ try:
     from http.server import BaseHTTPRequestHandler, HTTPServer
 except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-
-IP = None
-PORT = None
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -29,7 +28,7 @@ class Handler(BaseHTTPRequestHandler):
             <body>
                 <h1>OpenID Test Server</h1>
             </body>
-        </html>'''.encode("utf-8") % (IP, PORT, pageState))
+        </html>'''.encode("utf-8") % (self.server.domain_name, self.server.server_port, pageState))
 
     def _serve_request(self):
         parsed_path = urlparse(self.path)
@@ -113,6 +112,7 @@ class Handler(BaseHTTPRequestHandler):
 <payload>%s</payload>
 '''.encode("utf-8") % (ent_a, ref_a))
 
+    # Das muss weg
     def handle_one_request(self):
         try:
             self.raw_requestline = self.rfile.readline(65537)
@@ -138,43 +138,61 @@ class Handler(BaseHTTPRequestHandler):
 
 def main(queue, ip, port):
     httpd = HTTPServer(("", port), Handler)
-    global IP, PORT
-    IP = ip
-    PORT = httpd.server_port
+    httpd.domain_name = ip
+    port = httpd.server_port
     if queue:
-        queue.put(PORT)
+        queue.put(port)
     httpd.serve_forever()
 
 
-class OpenIDServer():
+class Create_server(object):
 
-    class create_server():
+    def __init__(self, config):
+        self.config = config
+        self.ip = "localhost"
+        self.port = 0
+        if self.config:
+            self.ip = self.config[0]
+            self.port = int(self.config[1])
+        self.server = None
+        self.benign_url = None
+        self.evil_urls = None
 
-        def __init__(self, config):
-            self.config = config
-            self.ip = "localhost"
-            self.port = 0
-            if self.config:
-                self.ip = self.config[0]
-                self.port = int(self.config[1])
-            self.server = None
-            self.benign_url = None
-            self.evil_urls = None
+    def __enter__(self):
+        queue = multiprocessing.Queue()
+        self.server = multiprocessing.Process(
+            target=main, args=(queue, self.ip, self.port))
+        self.server.start()
+        self.port = queue.get()
 
-        def __enter__(self):
-            queue = multiprocessing.Queue()
-            self.server = multiprocessing.Process(
-                target=main, args=(queue, self.ip, self.port))
-            self.server.start()
-            self.port = queue.get()
-            self.benign_url = "http://%s:%i" % (self.ip, self.port)
-            self.evil_urls = ("http://%s:%i/db" %
-                             (self.ip, self.port), "http://%s:%i/dq" % (self.ip, self.port))
-            self.server.join(0.001)
+        self.benign_url = "http://%s:%i" % (self.ip, self.port)
+        self.evil_urls = ("http://%s:%i/db" %
+                         (self.ip, self.port), "http://%s:%i/dq" % (self.ip, self.port))
+
+        def test_request(benign_url):
+            wait_time = 0.01
+            i = 0
+            while i < 3:
+                try:
+                    urllib2.urlopen(benign_url)
+                    return True
+                except urllib2.HTTPError:
+                    i += 1
+                    time.sleep(wait_time)
+                    wait_time = wait_time * 10
+                except urllib2.URLError:
+                    i += 1
+                    time.sleep(wait_time)
+                    wait_time = wait_time * 10
+            return False
+
+        if test_request(self.benign_url):
             return self
+        else:
+            return None
 
-        def __exit__(self, type, value, traceback):
-            self.server.terminate()
+    def __exit__(self, type, value, traceback):
+        self.server.terminate()
 
 
 if __name__ == '__main__':

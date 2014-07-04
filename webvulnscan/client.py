@@ -23,7 +23,8 @@ class Client(object):
 
     """ Client provides a easy interface for accessing web content. """
 
-    def __init__(self, log=webvulnscan.log):
+    def __init__(self, log=webvulnscan.log, config=[]):
+        self.config = config
         self.cookie_jar = CookieJar()
         self.opener = self.setup_opener()
         self.additional_headers = {}
