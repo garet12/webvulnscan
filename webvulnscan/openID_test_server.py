@@ -1,4 +1,3 @@
-import socket
 import urllib2
 import multiprocessing
 import time
@@ -30,7 +29,7 @@ class Handler(BaseHTTPRequestHandler):
             </body>
         </html>'''.encode("utf-8") % (self.server.domain_name, self.server.server_port, pageState))
 
-    def _serve_request(self):
+    def do_GET(self):
         parsed_path = urlparse(self.path)
         if parsed_path.path == "/":
             self._default_page("serverxml")
@@ -111,29 +110,6 @@ class Handler(BaseHTTPRequestHandler):
 ]>
 <payload>%s</payload>
 '''.encode("utf-8") % (ent_a, ref_a))
-
-    # Das muss weg
-    def handle_one_request(self):
-        try:
-            self.raw_requestline = self.rfile.readline(65537)
-            if len(self.raw_requestline) > 65536:
-                self.requestline = ''
-                self.request_version = ''
-                self.command = ''
-                self.send_error(414)
-                return
-            if not self.raw_requestline:
-                self.close_connection = 1
-                return
-            if not self.parse_request():
-                return
-
-            self._serve_request()
-            self.wfile.flush()
-        except socket.timeout as e:
-            self.log_error("Request timed out: %r", e)
-            self.close_connection = 1
-            return
 
 
 def main(queue, ip, port):
