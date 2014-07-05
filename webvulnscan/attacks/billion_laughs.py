@@ -25,8 +25,7 @@ def billion_laughs(client, log, form):
     with Create_server(client.config) as openid_server:
         if not openid_server:
             log('warn', "Billion Laughs", "OpenID Server is not reachable!")
-            raise socket.timeout
-            return
+            raise Exception("OpenID Server could not be reached !")
 
         if attack(openid_server.benign_url):
             log('warn', openid_server.benign_url, "Billion Laughs",
