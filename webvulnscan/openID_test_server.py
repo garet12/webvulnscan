@@ -1,6 +1,12 @@
-import urllib2
+from __future__ import unicode_literals
 import multiprocessing
 import time
+
+try:
+    from urllib.request import URLError, HTTPError, urlopen
+except ImportError:
+    from urllib2 import URLError, HTTPError, urlopen
+
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -27,7 +33,7 @@ class Handler(BaseHTTPRequestHandler):
             <body>
                 <h1>OpenID Test Server</h1>
             </body>
-        </html>'''.encode("utf-8") % (self.server.domain_name, self.server.server_port, pageState))
+        </html>'''.encode("utf-8") % (self.server.domain_name, self.server.server_port, pageState,))
 
     def do_GET(self):
         parsed_path = urlparse(self.path)
@@ -145,27 +151,16 @@ class Create_server(object):
         self.evil_urls = ("http://%s:%i/db" %
                          (self.ip, self.port), "http://%s:%i/dq" % (self.ip, self.port))
 
-        def test_request(benign_url):
-            wait_time = 0.01
-            i = 0
-            while i < 3:
-                try:
-                    urllib2.urlopen(benign_url)
-                    return True
-                except urllib2.HTTPError:
-                    i += 1
-                    time.sleep(wait_time)
-                    wait_time *= 10
-                except urllib2.URLError:
-                    i += 1
-                    time.sleep(wait_time)
-                    wait_time *= 10
-            return False
-
-        if test_request(self.benign_url):
-            return self
-        else:
-            return None
+        wait_time = 0.01
+        for i in range(3):
+            try:
+                urlopen(self.benign_url)
+                return None
+            except (HTTPError, URLError):
+                time.sleep(wait_time)
+                wait_time *= 10 ** i
+                i += 1
+        return None
 
     def __exit__(self, type, value, traceback):
         self.server.terminate()

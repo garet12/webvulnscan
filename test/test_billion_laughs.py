@@ -1,6 +1,6 @@
+from __future__ import unicode_literals
 import unittest
 import re
-import urllib2
 import xml_parser
 import tutil
 import webvulnscan.attacks.billion_laughs
@@ -8,25 +8,28 @@ import socket
 import time
 
 
+try:
+    from urllib.request import Request, URLError, HTTPError, urlopen
+except ImportError:
+    from urllib2 import Request, URLError, HTTPError, urlopen
+
+
 def get_XML(url):
     if "http://" not in url:
         url = "http://" + url
     headers = {'Accept': 'application/xrds+xml'}
-    req = urllib2.Request(url, None, headers)
+    req = Request(url, None, headers)
 
     try:
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError, e:
+        response = urlopen(req)
+    except (HTTPError, URLError):
         print(
-            '%s There was a problem with your request!\n' % e.code)
-        return None
-    except urllib2.URLError, e:
-        print('%s' % e.args)
+            'There was a problem with your request!\n')
         return None
 
     html = response.read()
     xrds_loc = re.search(
-        r'<meta\s+http-equiv="x-xrds-Location"\s+content="(?P<value>[^"]*)"\s*', html, re.IGNORECASE)
+        r'<meta\s+http-equiv="x-xrds-Location"\s+content="(?P<value>[^"]*)"\s*', html.decode(), re.IGNORECASE)
 
     if not xrds_loc:
         return None
@@ -34,13 +37,10 @@ def get_XML(url):
     xrds_url = xrds_loc.group('value')
 
     try:
-        xrds_doc = urllib2.urlopen(xrds_url)
-    except urllib2.HTTPError, e:
+        xrds_doc = urlopen(xrds_url)
+    except (HTTPError, URLError):
         print(
-            '%s There was a problem with your request!\n' % e.code)
-        return None
-    except urllib2.URLError, e:
-        print('%s' % e.args)
+            'There was a problem with your request!\n')
         return None
 
     return xrds_doc.read()
