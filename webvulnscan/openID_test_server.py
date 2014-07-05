@@ -155,7 +155,7 @@ class Create_server(object):
         for i in range(3):
             try:
                 urlopen(self.benign_url)
-                return None
+                return self
             except (HTTPError, URLError):
                 time.sleep(wait_time)
                 wait_time *= 10 ** i
