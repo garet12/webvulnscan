@@ -146,11 +146,12 @@ class Create_server(object):
             target=main, args=(queue, self.ip, self.port))
         self.server.daemon = True
         self.server.start()
-        self.port = queue.get()
+        if queue:
+            self.port = queue.get()
 
-        self.benign_url = "http://%s:%i" % (self.ip, self.port)
-        self.evil_urls = ("http://%s:%i/db" %
-                         (self.ip, self.port), "http://%s:%i/dq" % (self.ip, self.port))
+        self.benign_url = "http://%s:%i".encode('UTF-8') % (self.ip, self.port)
+        self.evil_urls = ("http://%s:%i/db".encode('UTF-8') %
+                         (self.ip, self.port), "http://%s:%i/dq".encode('UTF-8') % (self.ip, self.port))
 
         wait_time = 0.001
         for i in range(3):

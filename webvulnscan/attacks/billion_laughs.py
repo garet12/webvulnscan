@@ -23,7 +23,7 @@ def billion_laughs(client, log, form):
         return False
 
     with Create_server(client.config) as openid_server:
-
+        
         if attack(openid_server.benign_url):
             log('warn', openid_server.benign_url, "Billion Laughs",
                 "Test did not work!")

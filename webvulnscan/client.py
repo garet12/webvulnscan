@@ -90,11 +90,11 @@ class Client(object):
         """ Downloads the content of a site, returns it as page.
         Throws NotAPage if the content is not a webpage.
         """
-        timeout = None
+        timeout=None
         for key in kwargs:
             if key == "timeout":
                 timeout = kwargs[key]
-        socket.setdefaulttimeout(timeout)
+                socket.setdefaulttimeout(timeout)
 
         request, status_code, html_bytes, headers = self.download(
             url_or_request, parameters, req_headers, timeout)
