@@ -15,15 +15,17 @@ def billion_laughs(client, log, form):
         for key in parameters:
             if 'openid' in key:
                 parameters[key] = attack_url
-
+                
         try:
+            if "" in parameters:
+                del parameters[""]
             form.send(client, parameters, timeout=1)
         except socket.timeout:
             return True
         return False
 
     with Create_server(client.config) as openid_server:
-        
+
         if attack(openid_server.benign_url):
             log('warn', openid_server.benign_url, "Billion Laughs",
                 "Test did not work!")

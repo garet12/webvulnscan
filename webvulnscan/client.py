@@ -90,7 +90,7 @@ class Client(object):
         """ Downloads the content of a site, returns it as page.
         Throws NotAPage if the content is not a webpage.
         """
-        timeout=None
+        timeout = None
         for key in kwargs:
             if key == "timeout":
                 timeout = kwargs[key]

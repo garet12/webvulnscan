@@ -156,12 +156,11 @@ class Create_server(object):
         wait_time = 0.001
         for i in range(3):
             try:
-                urlopen(self.benign_url)
+                urlopen(self.benign_url+"?test")
                 return self
             except (HTTPError, URLError):
                 time.sleep(wait_time)
                 wait_time *= 10 ** (i + 1)
-                i += 1
         self.server.terminate()
         raise Exception("OpenID Server could not be reached !")
 
