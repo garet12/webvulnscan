@@ -144,6 +144,7 @@ class Create_server(object):
         queue = multiprocessing.Queue()
         self.server = multiprocessing.Process(
             target=main, args=(queue, self.ip, self.port))
+        self.server.daemon = True
         self.server.start()
         self.port = queue.get()
 
@@ -160,7 +161,8 @@ class Create_server(object):
                 time.sleep(wait_time)
                 wait_time *= 10 ** (i + 1)
                 i += 1
-        return None
+        self.server.terminate()
+        raise Exception("OpenID Server could not be reached !")
 
     def __exit__(self, type, value, traceback):
         self.server.terminate()

@@ -12,7 +12,7 @@ def get_objects(xml_data, allow_entity_def=True):
                 (?P<name>[a-zA-Z0-9_-]+)\s+
                 "(?P<value>[^"]*)"\s*
                 >
-            ''', xml_data[idx + 1:])
+            ''', xml_data[idx + 1:].decode())
             if m:
                 value = get_objects(m.group('value'), allow_entity_def=False)
                 yield ('entity', (m.group('name'), value))
