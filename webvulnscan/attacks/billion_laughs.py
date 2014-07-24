@@ -15,10 +15,10 @@ def billion_laughs(client, log, form):
         for key in parameters:
             if 'openid' in key:
                 parameters[key] = attack_url
-
+                
         try:
             if '' in parameters:
-                del parameters['']
+                del parameters['']     
             form.send(client, parameters, timeout=1)
         except socket.timeout:
             return True

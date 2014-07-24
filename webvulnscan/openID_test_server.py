@@ -114,8 +114,20 @@ class Handler(BaseHTTPRequestHandler):
 <!DOCTYPE payload [
 <!ENTITY A "%s">
 ]>
-<payload>%s</payload>
-'''.encode("utf-8") % (ent_a, ref_a))
+<xrds:XRDS
+    xmlns:xrds="xri://$xrds"
+    xmlns="xri://$xrd*($v*2.0)">
+  <XRD>
+
+    <Service priority="0">
+      <Type>%s</Type>
+      <URI>%s</URI>
+    </Service>
+
+  </XRD>
+
+</xrds:XRDS>
+'''.encode("utf-8") % (ent_a, ref_a, ref_a))
 
 
 def main(queue, ip, port):
@@ -156,7 +168,7 @@ class Create_server(object):
         wait_time = 0.001
         for i in range(3):
             try:
-                urlopen(self.benign_url+"?test")
+                urlopen(self.benign_url + "?test")
                 return self
             except (HTTPError, URLError):
                 time.sleep(wait_time)
