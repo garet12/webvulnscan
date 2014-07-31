@@ -15,7 +15,9 @@ def billion_laughs(client, log, form):
         for key in parameters:
             if 'openid' in key:
                 parameters[key] = attack_url
-                
+            if 'password'in key:
+                parameters[key] = ''
+
         try:
             if '' in parameters:
                 del parameters['']     
