@@ -23,9 +23,13 @@ class Form(object):
         for textarea in self.get_textarea_elements():
             yield TextArea(textarea)
 
-    def get_parameters(self):
+    def get_parameters(self, no_guessing=False):
         for item in self.get_inputs():
-            yield (item.get_name, item.guess_value())
+            if item.get_type == 'hidden' or not no_guessing:
+                value = item.guessvalue()
+            else:
+                value = ''
+            yield (item.get_name, value)
 
     def get_input_elements(self):
         for form_input in self.document.findall('.//input'):

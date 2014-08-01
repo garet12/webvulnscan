@@ -11,16 +11,17 @@ def search(page):
 @attack(search)
 def billion_laughs(client, log, form):
     def attack(attack_url):
-        parameters = dict(form.get_parameters())
+        parameters = dict(form.get_parameters(True))
         for key in parameters:
-            if 'openid' in key:
+            if 'openid' in key.lower():
                 parameters[key] = attack_url
-            if 'password'in key:
-                parameters[key] = ''
 
         try:
+            # Necessary because submit buttons usually do not have names which
+            # can cause bugs. So the submit buttons are deleted from the
+            # parameter list.
             if '' in parameters:
-                del parameters['']     
+                del parameters['']
             form.send(client, parameters, timeout=1)
         except socket.timeout:
             return True
@@ -35,4 +36,4 @@ def billion_laughs(client, log, form):
 
         for evil_url in openid_server.evil_urls:
             if attack(evil_url):
-                log('vuln', evil_url, "Billion Laughs")
+                log('vuln', evil_url, "Billion Laughs/Quadratic Blowup")
