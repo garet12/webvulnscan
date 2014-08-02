@@ -26,7 +26,7 @@ class Form(object):
     def get_parameters(self, no_guessing=False):
         for item in self.get_inputs():
             if item.get_type == 'hidden' or not no_guessing:
-                value = item.guessvalue()
+                value = item.guess_value()
             else:
                 value = ''
             yield (item.get_name, value)
