@@ -37,7 +37,7 @@ def run(options, targets):
         log = Log(verbosity=u'vuln')
     else:
         log = Log()
-    client = Client(log=log,config=options.bl_config)
+    client = Client(log=log, config=options.bl_config)
 
     if options.import_cookies:
         client.cookie_jar = MozillaCookieJar(options.import_cookies)
@@ -86,7 +86,7 @@ def run(options, targets):
             for page in all_pages:
                 log('info', page.url, 'crawler', 'Scanning ...')
 
-                for attack in attacks:                 
+                for attack in attacks:
                     attack(client, log, page)
 
     finally:

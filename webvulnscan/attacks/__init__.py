@@ -11,4 +11,4 @@ from .billion_laughs import billion_laughs
 
 
 def all_attacks():
-    return [xss, csrf, crlf, breach, clickjack, cookiescan, exotic_characters,utf7_check,billion_laughs]
+    return [xss, csrf, crlf, breach, clickjack, cookiescan, exotic_characters, utf7_check, billion_laughs]
